@@ -1,0 +1,42 @@
+@font-face {
+  font-family: 'FiraCode';
+  src: url('../fonts/firacode/FiraCode-Regular.woff') format('woff'),
+  url('../fonts/firacode/FiraCode-Regular.ttf') format('ttf'),
+  url('../fonts/firacode/FiraCode-Bold.woff') format('woff'),
+  url('../fonts/firacode/FiraCode-Bold.ttf') format('ttf');
+}
+body {
+    margin: 0;
+    padding: 0;
+    color: #ebdbb2;
+    background-color: #282828;
+    font-family: 'FiraCode', monospace;
+    font-size: 18px;
+}
+#console_wrapper {
+    height: 100vh;
+    width: 100vw;
+    max-width: 100%;
+}
+#console {
+    margin: 0;
+    padding: 40px 50px;
+}
+
+#log {
+    white-space: pre;
+}
+
+.on {
+    box-shadow: 0 100px 0 #ebdbb2 inset;
+    color: #282828;
+}
+
+.background { color: #282828; }
+.default { color: #ebdbb2; }
+.blue { color: #83a598; }
+.yellow { color: #fabd2f; }
+.aqua { color: #8ec07c; }
+.green { color: #b8bb26; }
+.red { color: #fb4934; }
+.purple, a { color: #d3869b; }
