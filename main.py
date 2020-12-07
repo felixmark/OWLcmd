@@ -57,13 +57,12 @@ def handle_new_connection():
 
 @socketio.on('disconnect')
 def handle_delete_connection():
-    if "username" in session:
-        disconnect_user(session["username"])
+    disconnect_user()
 
 
 @socketio.on('login_username')
 def handle_message(obj):
-    login_with_username(obj)
+    login_with_username(obj['data'], True)
 
 
 @socketio.on('accept_invitation')
@@ -84,8 +83,6 @@ def handle_message(obj):
 
 @socketio.on('msg')
 def handle_message(obj):
-    print('RECV: ' + str(obj))
-
     if 'data' in obj:
         command = obj["data"]
         parts = str(command).split(" ")
@@ -93,20 +90,21 @@ def handle_message(obj):
 
         if command == "":
             pass
-        elif command.startswith("login"):
-            if len(parts) > 1:
-                login_with_username({'data': parts[1]})
-            else:
-                send_login_username()
-        elif command == "list" or command == "ls":
-            list_users()
-        elif command.startswith("invite"):
-            if len(parts) > 1:
-                invite_user(session["username"], parts[1])
         elif command == "help":
             send_all('msg', Sites.get_site("help.txt"))
         elif command == "info":
             send_all('msg', Sites.get_site("info.txt"))
+        elif command == "list" or command == "ls":
+            list_users()
+
+        # More complex functions:
+        elif command.startswith("login"):
+            login_with_username(parts)
+        elif command.startswith("invite"):
+            if "username" in session and len(parts) > 1:
+                invite_user(session["username"], parts[1])
+        elif command == "exit":
+            disconnect_user()
         elif command.startswith("msg"):
             if len(parts) > 1 and "username" in session:
                 message = str(command).replace("msg ", "")
@@ -118,7 +116,9 @@ def handle_message(obj):
 # =================================================== ROUTES ===================================================
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html',
+        website_title=Constants.WEBSITE_TITLE
+    )
 
 
 # =================================================== MAIN ===================================================

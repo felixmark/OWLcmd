@@ -1,8 +1,11 @@
 **Help**
 --------------------------------------------------------------------------------
-info                                              Show website and contact info.
-list                                       List all online users and room count.
-login *username*                                     Login with username if given.
-invite *username*                                   Invite another user to a room.
-msg *message*                            Write a message to everyone in your room.
 help                                                          View this message.
+info                                              Show website and contact info.
+ls or list                                      List all online users and rooms.
+login <username>           Login with username if given. No registration needed.
+
+Only when logged in:
+invite <username>                          Invite another user to chat with you.
+msg <message>                          Write a message to everyone in your room.
+exit                                                                    Log out.

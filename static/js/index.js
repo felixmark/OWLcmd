@@ -1,8 +1,6 @@
 
 // Constants
-var allowed_characters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v",
-"w","x","y","z",".",",",":","=",";","?","\"","\\","/","!","^","°","|","&","%","*","+","-","_","~","#","'","(",")",
-"0","1","2","3","4","5","6","7","8","9"," "];
+var fill_string = new Array(256).join('+');
 
 // Regex
 var bold = /\*\*([^\*]+)\*\*/gi;
@@ -68,10 +66,12 @@ $(document).ready(function(){
             var command = id_input.val();
             id_input.val("");
             id_pre_cursor.html("");
-            if (id_pre_input.is(":visible")) {
-                id_log.append(id_pre_input.html());
+            if (!command.startsWith("msg ")) {
+                if (id_pre_input.is(":visible")) {
+                    id_log.append(id_pre_input.html());
+                }
+                id_log.append('<span>' + parse_message(command) + '</span><br>');
             }
-            id_log.append('<span>' + command + '</span><br>');
             cmd_history.push(command);
             cmd_history_pos = 0;
 
@@ -85,37 +85,48 @@ $(document).ready(function(){
             }
 
             // Send command
-            socket.emit(current_app, {data: command, user_from: user_from, user_to: user_to});
+            if (user_from === "" || user_to === "") {
+                socket.emit(current_app, { data: command });
+            } else {
+                socket.emit(current_app, { data: command, user_from: user_from, user_to: user_to });
+            }
         } else if (e.which == 38 || e.which == 40) {
             // Up and Down arrows
             if (e.which == 38 && cmd_history_pos < cmd_history.length) {
                 cmd_history_pos += 1;
                 id_input.val(cmd_history[cmd_history.length-cmd_history_pos]);
             }
-            else if (e.which == 40 && cmd_history_pos > 1) {
+            else if (e.which == 40 && cmd_history_pos > 0) {
                 cmd_history_pos -= 1;
-                id_input.val(cmd_history[cmd_history.length-cmd_history_pos]);
+                if (cmd_history_pos > -1) {
+                    id_input.val(cmd_history[cmd_history.length-cmd_history_pos]);
+                } else {
+                    id_input.val("");
+                }
             }
+            input_changed();
             e.preventDefault();
         } else if (e.which == 37 || e.which == 39) {
-            if (e.which == 37 && id_pre_cursor.text().length > 0) {
-                id_pre_cursor.text(id_pre_cursor.text().slice(0, -1));
-            } else if (e.which == 39 && id_pre_cursor.text().length < id_input.val().length) {
-                id_pre_cursor.text(id_pre_cursor.text() + "x");
+            // Left and right arrows
+            input_position = id_input.getCursorPosition()
+            if (e.which == 37) {
+                if (input_position > 0) input_position -= 1;
+                id_pre_cursor.text(fill_string.substring(0, input_position));
+            } else if (e.which == 39) {
+                if (input_position < id_input.val().length) input_position += 1;
+                id_pre_cursor.text(fill_string.substring(0, input_position));
             }
-            if (id_pre_cursor.text().length < id_input.val().length) {
+            if (input_position < id_input.val().length) {
                 id_cursor.css("opacity", "0.25");
             } else {
                 id_cursor.css("opacity", "1");
             }
+            prevent_cursor_blinking();
         }
     });
 
-
-    id_input.on('input', function() {
-        id_pre_cursor.text(id_input.val())
-    });
-
+    id_input.on('keydown', input_changed);
+    id_input.on('input', input_changed);
 
     function append_to_log(obj) {
         var message = parse_message(obj.data);
@@ -133,16 +144,32 @@ $(document).ready(function(){
         }
     }
 
+    function input_changed() {
+        var id_pre_cursor = $('#pre_cursor');
+        var id_input = $('#input');
+        id_pre_cursor.text(fill_string.substring(0, id_input.getCursorPosition()));
+        prevent_cursor_blinking();
+    }
+
     function parse_message(message) {
+        message = message.replace("<","&lt;").replace(">","&gt;").replace(" ","&nbsp;").replace("/","&sol;").replace("\\","&bsol;");
         message = message.replaceAll(bold, bold_replacer);
         message = message.replaceAll(italic, italic_replacer);
         message = message.replaceAll(url, url_replacer);
         return message;
     }
 
-    setInterval(function(){
-        id_cursor.toggleClass("on")
-    }, 500);
+    function prevent_cursor_blinking() {
+        clearInterval(cursor_blink);
+        id_cursor.addClass("on");
+        make_cursor_blink();
+    }
+    function make_cursor_blink() {
+        cursor_blink = setInterval(function(){
+            id_cursor.toggleClass("on")
+        }, 500);
+    }
+    make_cursor_blink();
 });
 
 
@@ -157,3 +184,21 @@ function italic_replacer(match, text, offset, string){
 function url_replacer(match, text, offset, string){
     return '<a href="' + text + '" target="_blank">' + text + '</a>';
 }
+
+(function($) {
+    $.fn.getCursorPosition = function() {
+        var input = this.get(0);
+        if (!input) return; // No (input) element found
+        if ('selectionStart' in input) {
+            // Standard-compliant browsers
+            return input.selectionStart;
+        } else if (document.selection) {
+            // IE
+            input.focus();
+            var sel = document.selection.createRange();
+            var selLen = document.selection.createRange().text.length;
+            sel.moveStart('character', -input.value.length);
+            return sel.text.length - selLen;
+        }
+    }
+})(jQuery);

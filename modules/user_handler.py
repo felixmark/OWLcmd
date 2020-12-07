@@ -1,5 +1,7 @@
 
 from flask import Flask, render_template, session, request
+
+from modules.constants import Constants
 from modules.sites import Sites
 from modules.css_classes import CSS_classes
 
@@ -23,9 +25,18 @@ def send_login_username():
     send('login', "username: ", [], False, False)
 
 
-def disconnect_user(username):
+def disconnect_user():
     from main import send
+
+    if "username" not in session:
+        send('msg', 'You can only log out if you log in first.')
+        return
+
+    username = session["username"]
     print('Disconnecting user "' + username + '".')
+    send('user', Constants.UNKNOWN_USER_NAME)
+    send('msg', 'You are now logged out.')
+    del session["username"]
     user = get_user_by_name(username)
     connected_users.remove(user)
     for shared_room in shared_rooms:
@@ -37,38 +48,42 @@ def disconnect_user(username):
                     shared_rooms.remove(shared_room)
 
 
-def login_with_username(obj):
+def login_with_username(something, is_username=False):
     from main import send
-    if 'data' in obj:
-        username = obj['data']
 
-        if len(username) > 16:
-            send('msg', "The username has to be 16 or less characters long.")
+    if not is_username:
+        if len(something) <= 1:
+            send_login_username()
             return
-        if 'username' in session:
-            send('msg', "You are already logged in. Log out first.")
-            return
-        if is_username_taken(username):
-            send('msg', "The username is already taken.")
-            return
+        username = something[1]
+    else:
+        username = something
 
-        session['username'] = username
-        connected_users.append({"username": username, "room": request.sid})
-        send('user', username)
-        send('msg', "You are now logged in as " + username + ".")
+    if len(username) > 16:
+        send('msg', "The username has to be 16 or less characters long.")
+        return
+    if 'username' in session:
+        send('msg', "You are already logged in. Exit first.")
+        return
+    if is_username_taken(username):
+        send('msg', "The username is already taken.")
+        return
+
+    session['username'] = username
+    connected_users.append({"username": username, "room": request.sid})
+    send('user', username)
+    send('msg', "You are now logged in as " + username + ".")
 
 
 def list_users():
     from main import send
     send('msg', '**Users**')
     send('msg', Sites.SEPARATOR_LIGHT)
-    for user in connected_users:
-        send('msg', user["username"])
+    send('msg', ', '.join([connected_user["username"] for connected_user in connected_users]))
     send('msg', " ")
     send('msg', '**Rooms**')
     send('msg', Sites.SEPARATOR_LIGHT)
-    for room in shared_rooms:
-        send('msg', str([user["username"] for user in room["users"]]))
+    send('msg', ', '.join([str([user["username"] for user in shared_room["users"]]) for shared_room in shared_rooms]))
 
 
 def invite_user(user_from, user_to):
