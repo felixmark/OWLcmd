@@ -13,7 +13,6 @@ var url = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\
 // When document loaded
 $(document).ready(function(){
     // Variables
-    var cursor_pos = 0;
     var current_app = "msg";
     var user_from = "", user_to = "";
     var cmd_history = [];
@@ -25,9 +24,18 @@ $(document).ready(function(){
     var id_log = $('#log');
     var id_input = $('#input');
     var id_pre_input = $('#pre_input');
+    var id_pre_cursor = $('#pre_cursor');
+    var id_cursor = $('#cursor');
+
+    // Focus input
+    id_input.focus();
+    $(document).on("click", function() {
+        id_input.focus();
+    });
 
     // socket.io
     var socket = io.connect('http://' + document.domain + ':' + location.port + '/');
+    socket.on('connect', function() { id_log.html(""); });
     socket.on('user', function(obj) { id_user.text(obj.data); });
     socket.on('machine', function(obj) { id_machine.text(obj.data); });
     socket.on('path', function(obj) { id_path.text(obj.data); });
@@ -57,42 +65,56 @@ $(document).ready(function(){
     $(document).on('keydown',function(e) {
         if (e.which == 13) {
             // Enter
-            var command = id_input.text();
-            socket.emit(current_app, {data: command, user_from: user_from, user_to: user_to});
+            var command = id_input.val();
+            id_input.val("");
+            id_pre_cursor.html("");
             if (id_pre_input.is(":visible")) {
                 id_log.append(id_pre_input.html());
             }
             id_log.append('<span>' + command + '</span><br>');
-            id_input.html("");
             cmd_history.push(command);
             cmd_history_pos = 0;
-        } else if (e.which == 46 || e.which == 8) {
-            // Delete keys (8 = back delete)
-            if (e.which == 8) {
-                $('#input').text($('#input').text().slice(0, -1));
-                e.preventDefault();
+
+            // Handle some commands offline
+            if (command === "") {
+                return;
             }
-        } else if (e.which == 37 || e.which == 39) {
-            // Left and right arrow
-            if (e.which == 37 && cursor_pos > 0) cursor_pos -= 1;
-            else if (e.which == 39 && cursor_pos < $('#input').text().length) cursor_pos -= 1;
+            if (command === "clear" || command === "cls") {
+                id_log.html("");
+                return;
+            }
+
+            // Send command
+            socket.emit(current_app, {data: command, user_from: user_from, user_to: user_to});
         } else if (e.which == 38 || e.which == 40) {
+            // Up and Down arrows
             if (e.which == 38 && cmd_history_pos < cmd_history.length) {
                 cmd_history_pos += 1;
-                id_input.text(cmd_history[cmd_history.length-cmd_history_pos]);
+                id_input.val(cmd_history[cmd_history.length-cmd_history_pos]);
             }
             else if (e.which == 40 && cmd_history_pos > 1) {
                 cmd_history_pos -= 1;
-                id_input.text(cmd_history[cmd_history.length-cmd_history_pos]);
+                id_input.val(cmd_history[cmd_history.length-cmd_history_pos]);
             }
             e.preventDefault();
-        } else if (allowed_characters.indexOf(event.key.toLowerCase()) >= 0) {
-            // Any allowed character
-            cursor_pos += 1;
-            $('#input').append(e.key);
+        } else if (e.which == 37 || e.which == 39) {
+            if (e.which == 37 && id_pre_cursor.text().length > 0) {
+                id_pre_cursor.text(id_pre_cursor.text().slice(0, -1));
+            } else if (e.which == 39 && id_pre_cursor.text().length < id_input.val().length) {
+                id_pre_cursor.text(id_pre_cursor.text() + "x");
+            }
+            if (id_pre_cursor.text().length < id_input.val().length) {
+                id_cursor.css("opacity", "0.25");
+            } else {
+                id_cursor.css("opacity", "1");
+            }
         }
     });
 
+
+    id_input.on('input', function() {
+        id_pre_cursor.text(id_input.val())
+    });
 
 
     function append_to_log(obj) {
@@ -119,7 +141,7 @@ $(document).ready(function(){
     }
 
     setInterval(function(){
-        $('#cursor').toggleClass("on")
+        id_cursor.toggleClass("on")
     }, 500);
 });
 

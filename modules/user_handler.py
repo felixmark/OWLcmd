@@ -1,10 +1,10 @@
 
 from flask import Flask, render_template, session, request
+from modules.sites import Sites
+from modules.css_classes import CSS_classes
 
-from classes import Classes
-
-connected_users = []
-shared_rooms = []
+connected_users = []    # {username, room}
+shared_rooms = []       # {users}
 
 
 def get_user_by_name(username):
@@ -32,7 +32,7 @@ def disconnect_user(username):
         if user in shared_room["users"]:
             for user in shared_room["users"]:
                 if user["username"] != username:
-                    send('msg', username + " has disconnected.", [Classes.BLUE], room=user["room"])
+                    send('msg', username + " has disconnected.", [CSS_classes.BLUE], room=user["room"])
                     send('user', user["username"], room=user["room"])
                     shared_rooms.remove(shared_room)
 
@@ -45,28 +45,30 @@ def login_with_username(obj):
         if len(username) > 16:
             send('msg', "The username has to be 16 or less characters long.")
             return
-        if is_username_taken(username):
-            send('msg', "The username is already taken.")
-            return
         if 'username' in session:
             send('msg', "You are already logged in. Log out first.")
+            return
+        if is_username_taken(username):
+            send('msg', "The username is already taken.")
             return
 
         session['username'] = username
         connected_users.append({"username": username, "room": request.sid})
         send('user', username)
-        send('msg', "You are now connected as " + username + ".")
+        send('msg', "You are now logged in as " + username + ".")
 
 
 def list_users():
     from main import send
-    from messages import Messages
-    send('msg', 'List')
-    send('msg', Messages.SEPARATOR_LIGHT)
+    send('msg', '**Users**')
+    send('msg', Sites.SEPARATOR_LIGHT)
     for user in connected_users:
         send('msg', user["username"])
     send('msg', " ")
-    send('msg', 'Rooms: ' + str(len(shared_rooms)))
+    send('msg', '**Rooms**')
+    send('msg', Sites.SEPARATOR_LIGHT)
+    for room in shared_rooms:
+        send('msg', str([user["username"] for user in room["users"]]))
 
 
 def invite_user(user_from, user_to):
@@ -79,14 +81,14 @@ def invite_user(user_from, user_to):
     send(
         'invite_user',
         data=user_from + " invited you. Accept? (y/n)",
-        classes=[Classes.BLUE],
+        classes=[CSS_classes.BLUE],
         new_line=True,
         show_pre_input=False,
         room=user["room"],
         user_from=user_from,
         user_to=user_to
     )
-    send('msg', 'Invitation sent.', [Classes.BLUE])
+    send('msg', 'Invitation sent.', [CSS_classes.BLUE])
 
 
 def send_to_shared_room(sender_username, message):
@@ -96,5 +98,5 @@ def send_to_shared_room(sender_username, message):
         if sender in shared_room["users"]:
             for user in shared_room["users"]:
                 if user["username"] != sender_username:
-                    send('msg', sender_username + ": " + message, [Classes.BLUE], room=user["room"])
-    send('msg', "You: " + message, [Classes.BLUE])
+                    send('msg', sender_username + ": " + message, [CSS_classes.BLUE], room=user["room"])
+    send('msg', "You: " + message, [CSS_classes.BLUE])

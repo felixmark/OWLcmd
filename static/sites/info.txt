@@ -1,0 +1,13 @@
+**Info**
+--------------------------------------------------------------------------------
+**This site is powered by:**
+Flask                                       https://palletsprojects.com/p/flask
+Socket.IO                                   https://socket.io
+JQuery                                      https://jquery.com
+FiraCode Font                               https://github.com/tonsky/FiraCode
+Gruvbox Color Scheme                        https://github.com/morhetz/gruvbox
+
+**Contact:**
+Felix Mark
+felix.mark@hotmail.com
+Keesgasse 4, 8010 Graz, Austria

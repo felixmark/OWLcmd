@@ -22,14 +22,27 @@ body {
     margin: 0;
     padding: 40px 50px;
 }
-
 #log {
     white-space: pre;
 }
+#input {
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+    color: #ebdbb2;
+    caret-color: #00000000;
+    background: none;
+    border: none;
+    width: 70%;
+    position: absolute;
+}
 
+#pre_cursor {
+    color: #00000000;
+}
 .on {
     box-shadow: 0 100px 0 #ebdbb2 inset;
-    color: #282828;
 }
 
 .background { color: #282828; }

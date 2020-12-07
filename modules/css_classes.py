@@ -1,5 +1,5 @@
 
-class Classes(object):
+class CSS_classes(object):
     DEFAULT = "default"
     AQUA = "aqua"
     GREEN = "green"

@@ -1,0 +1,8 @@
+**Help**
+--------------------------------------------------------------------------------
+info                                              Show website and contact info.
+list                                       List all online users and room count.
+login *username*                                     Login with username if given.
+invite *username*                                   Invite another user to a room.
+msg *message*                            Write a message to everyone in your room.
+help                                                          View this message.
