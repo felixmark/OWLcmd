@@ -114,4 +114,4 @@ def send_to_shared_room(sender_username, message):
             for user in shared_room["users"]:
                 if user["username"] != sender_username:
                     send('msg', sender_username + ": " + message, [CSS_classes.BLUE], room=user["room"])
-    send('msg', "You: " + message, [CSS_classes.BLUE])
+    send('msg', "You: " + message)
