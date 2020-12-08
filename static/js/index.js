@@ -63,7 +63,7 @@ $(document).ready(function(){
     $(document).on('keydown',function(e) {
         if (e.which == 13) {
             // Enter
-            var command = id_input.val();
+            var command = parse_message(id_input.val(), false);
             id_input.val("");
             id_pre_cursor.html("");
             if (!command.startsWith("msg ")) {
@@ -151,11 +151,16 @@ $(document).ready(function(){
         prevent_cursor_blinking();
     }
 
-    function parse_message(message) {
-        message = message.replace("<","&lt;").replace(">","&gt;").replace(" ","&nbsp;").replace("/","&sol;").replace("\\","&bsol;");
-        message = message.replaceAll(bold, bold_replacer);
-        message = message.replaceAll(italic, italic_replacer);
+    function parse_message(message, receiving=true) {
+        message = message.replace("<","&lt;").replace(">","&gt;").replace(" ","&nbsp;");
+        if (!receiving) {
+            message = message.replace("/","&sol;").replace("\\","&bsol;");
+        }
         message = message.replaceAll(url, url_replacer);
+        if (receiving) {
+            message = message.replaceAll(bold, bold_replacer);
+            message = message.replaceAll(italic, italic_replacer);
+        }
         return message;
     }
 
