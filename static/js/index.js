@@ -152,9 +152,11 @@ $(document).ready(function(){
     }
 
     function parse_message(message, receiving=true) {
-        message = message.replace("<","&lt;").replace(">","&gt;").replace(" ","&nbsp;");
+        message = message.replace("<","&lt;").replace(">","&gt;");
         if (!receiving) {
             message = message.replace("/","&sol;").replace("\\","&bsol;");
+        } else {
+            message = message.replace(" ","&nbsp;");
         }
         message = message.replaceAll(url, url_replacer);
         if (receiving) {
