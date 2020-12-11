@@ -8,7 +8,7 @@ class Sites(object):
 
     @staticmethod
     def get_site(site_filename):
-        with open(os.path.join(Constants.FOLDER_SITES, site_filename), "r") as file_site:
+        with open(os.path.join(Constants.FOLDER_SITES, site_filename), "r", encoding='utf-8') as file_site:
             return [Sites.parse_line(line) for line in file_site.read().splitlines(False)]
 
     @staticmethod
