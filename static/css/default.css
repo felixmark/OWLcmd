@@ -46,6 +46,7 @@ img {
     border: none;
     width: 70%;
     position: absolute;
+    outline: none;
 }
 
 #pre_cursor {
