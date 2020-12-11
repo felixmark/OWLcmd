@@ -1,6 +1,8 @@
 
 class Constants(object):
     WEBSITE_TITLE = "OWLcmd"
+    VERSION = "0.0.3"
+
     MACHINE_NAME = "owl"
     PORT = 14159
     PING_INTERVAL = 5

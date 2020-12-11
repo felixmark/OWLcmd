@@ -1,5 +1,3 @@
-**Info**
---------------------------------------------------------------------------------
 **This site is powered by:**
 Flask                                       https://palletsprojects.com/p/flask
 Socket.IO                                   https://socket.io

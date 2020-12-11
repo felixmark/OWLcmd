@@ -21,7 +21,7 @@ $(document).ready(function(){
     var id_path = $('#path');
     var id_log = $('#log');
     var id_input = $('#input');
-    var id_pre_input = $('#pre_input');
+    var id_prompt = $('#prompt');
     var id_pre_cursor = $('#pre_cursor');
     var id_cursor = $('#cursor');
 
@@ -31,33 +31,35 @@ $(document).ready(function(){
         id_input.focus();
     });
 
+
     // socket.io
     var socket = io.connect('http://' + document.domain + ':' + location.port + '/');
-    socket.on('connect', function() { id_log.html(""); });
+    socket.on('connect', function() { /* You are now connected. */ });
     socket.on('user', function(obj) { id_user.text(obj.data); });
     socket.on('machine', function(obj) { id_machine.text(obj.data); });
     socket.on('path', function(obj) { id_path.text(obj.data); });
     socket.on('msg', function(obj) {
         current_app = 'msg';
         append_to_log(obj);
-        show_or_hide_pre_input(!obj.show_pre_input);
+        show_prompt(obj.show_pre_input);
         window.scrollTo(0,document.body.scrollHeight);
     });
     socket.on('login', function(obj) {
         current_app = 'login_username';
         append_to_log(obj);
-        show_or_hide_pre_input(!obj.show_pre_input);
+        show_prompt(obj.show_pre_input);
         window.scrollTo(0,document.body.scrollHeight);
     });
     socket.on('invite_user', function(obj) {
-        id_log.append(id_pre_input.html() + "<br>");
+        id_log.append(id_prompt.html() + "<br>");
         current_app = 'accept_invitation';
         user_from = obj.user_from;
         user_to = obj.user_to;
         append_to_log(obj);
-        show_or_hide_pre_input(!obj.show_pre_input);
+        show_prompt(obj.show_pre_input);
         window.scrollTo(0,document.body.scrollHeight);
     });
+
 
     // On Key down
     $(document).on('keydown',function(e) {
@@ -67,10 +69,10 @@ $(document).ready(function(){
             id_input.val("");
             id_pre_cursor.html("");
             if (!command.startsWith("msg ")) {
-                if (id_pre_input.is(":visible")) {
-                    id_log.append(id_pre_input.html());
+                if (id_prompt.is(":visible")) {
+                    id_log.append(id_prompt.html());
                 }
-                id_log.append('<span>' + parse_message(command) + '</span><br>');
+                id_log.append('<span>' + parse_message(command, false) + '</span><br>');
             }
             cmd_history.push(command);
             cmd_history_pos = 0;
@@ -90,6 +92,7 @@ $(document).ready(function(){
             } else {
                 socket.emit(current_app, { data: command, user_from: user_from, user_to: user_to });
             }
+            show_prompt(false);
         } else if (e.which == 38 || e.which == 40) {
             // Up and Down arrows
             if (e.which == 38 && cmd_history_pos < cmd_history.length) {
@@ -129,18 +132,20 @@ $(document).ready(function(){
     id_input.on('input', input_changed);
 
     function append_to_log(obj) {
-        var message = parse_message(obj.data);
-        id_log.append('<span class="' + obj.classes.join(" ") + '">' + message + '</span>');
-        if (obj.new_line == true) {
-            id_log.append('<br>');
-        }
+        obj.data.forEach(message => {
+            message = parse_message(message, true);
+            id_log.append('<span class="' + obj.classes.join(" ") + '">' + message + '</span>');
+            if (obj.new_line == true) {
+                id_log.append('<br>');
+            }
+        });
     }
 
-    function show_or_hide_pre_input(hide) {
-        if (hide) {
-            id_pre_input.hide();
+    function show_prompt(show_prompt) {
+        if (show_prompt) {
+            id_prompt.show();
         } else {
-            id_pre_input.show();
+            id_prompt.hide();
         }
     }
 
@@ -152,16 +157,13 @@ $(document).ready(function(){
     }
 
     function parse_message(message, receiving=true) {
-        message = message.replace("<","&lt;").replace(">","&gt;");
-        if (!receiving) {
-            message = message.replace("/","&sol;").replace("\\","&bsol;");
-        } else {
-            message = message.replace(" ","&nbsp;");
-        }
-        message = message.replaceAll(url, url_replacer);
+        message = message.replaceAll("<","&lt;").replaceAll(">","&gt;");
         if (receiving) {
+            message = message.replaceAll(url, url_replacer);
             message = message.replaceAll(bold, bold_replacer);
             message = message.replaceAll(italic, italic_replacer);
+        } else {
+            message = message.replaceAll("*","&ast;");
         }
         return message;
     }
@@ -189,7 +191,12 @@ function italic_replacer(match, text, offset, string){
     return "<i>" + text + "</i>";
 }
 function url_replacer(match, text, offset, string){
-    return '<a href="' + text + '" target="_blank">' + text + '</a>';
+    text_lower = text.toLowerCase()
+    if (text_lower.endsWith('.jpg') || text_lower.endsWith('.png') || text_lower.endsWith('.gif')) {
+        return '<img src="' + text + '"></img>';
+    } else {
+        return '<a href="' + text + '" target="_blank">' + text + '</a>';
+    }
 }
 
 (function($) {

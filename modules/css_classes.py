@@ -7,3 +7,4 @@ class CSS_classes(object):
     PURPLE = "purple"
     YELLOW = "yellow"
     RED = "red"
+    ASCII_ART = "bright"

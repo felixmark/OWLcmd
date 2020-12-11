@@ -1,17 +1,27 @@
 @font-face {
   font-family: 'FiraCode';
-  src: url('../fonts/firacode/FiraCode-Regular.woff') format('woff'),
-  url('../fonts/firacode/FiraCode-Regular.ttf') format('ttf'),
+  src: url('../fonts/firacode/FiraCode-Medium.woff') format('woff'),
+  url('../fonts/firacode/FiraCode-Medium.ttf') format('ttf'),
   url('../fonts/firacode/FiraCode-Bold.woff') format('woff'),
   url('../fonts/firacode/FiraCode-Bold.ttf') format('ttf');
 }
+
+
 body {
     margin: 0;
     padding: 0;
     color: #ebdbb2;
     background-color: #282828;
     font-family: 'FiraCode', monospace;
-    font-size: 18px;
+    font-size: 20px;
+}
+b {
+    font-weight: bold;
+    text-shadow: 0 0 1px rgba(255,255,255,0.75);
+}
+img {
+    max-width: 100%;
+    max-height: 50vh;
 }
 #console_wrapper {
     height: 100vh;
@@ -45,11 +55,15 @@ body {
     box-shadow: 0 100px 0 #ebdbb2 inset;
 }
 
+.bright {
+    text-shadow: 0 0 5px #d3f5d870;
+}
+
 .background { color: #282828; }
 .default { color: #ebdbb2; }
-.blue { color: #83a598; }
+.blue, a { color: #83a598; }
 .yellow { color: #fabd2f; }
 .aqua { color: #8ec07c; }
 .green { color: #b8bb26; }
 .red { color: #fb4934; }
-.purple, a { color: #d3869b; }
+.purple { color: #d3869b; }

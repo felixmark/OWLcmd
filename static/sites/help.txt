@@ -1,11 +1,14 @@
-**Help**
---------------------------------------------------------------------------------
+**General**
 help                                                          View this message.
 info                                              Show website and contact info.
 ls or list                                      List all online users and rooms.
-login <username>           Login with username if given. No registration needed.
+cls or clear                                                       Clear screen.
 
-Only when logged in:
+**Chat**
+login <username>           Login with username if given. No registration needed.
 invite <username>                          Invite another user to chat with you.
 msg <message>                          Write a message to everyone in your room.
 exit                                                                    Log out.
+
+**Other**
+sleep <seconds>                             Sleep for a given amount of seconds.

@@ -22,20 +22,20 @@ def is_username_taken(username):
 
 def send_login_username():
     from main import send
-    send('login', "username: ", [], False, False)
+    send('login', ["username: "], new_line=False, show_pre_input=False)
 
 
 def disconnect_user():
     from main import send
 
     if "username" not in session:
-        send('msg', 'You can only log out if you log in first.')
+        send('msg', ['You can only log out if you log in first.'])
         return
 
     username = session["username"]
     print('Disconnecting user "' + username + '".')
-    send('user', Constants.UNKNOWN_USER_NAME)
-    send('msg', 'You are now logged out.')
+    send('user', [Constants.UNKNOWN_USER_NAME])
+    send('msg', ['You are now logged out.'])
     del session["username"]
     user = get_user_by_name(username)
     connected_users.remove(user)
@@ -43,8 +43,8 @@ def disconnect_user():
         if user in shared_room["users"]:
             for user in shared_room["users"]:
                 if user["username"] != username:
-                    send('msg', username + " has disconnected.", [CSS_classes.BLUE], room=user["room"])
-                    send('user', user["username"], room=user["room"])
+                    send('msg', [username + " has disconnected."], [CSS_classes.BLUE], room=user["room"])
+                    send('user', [user["username"]], room=user["room"])
                     shared_rooms.remove(shared_room)
 
 
@@ -60,50 +60,56 @@ def login_with_username(something, is_username=False):
         username = something
 
     if len(username) > 16:
-        send('msg', "The username has to be 16 or less characters long.")
+        send('msg', ["The username has to be 16 or less characters long."])
         return
     if 'username' in session:
-        send('msg', "You are already logged in. Exit first.")
+        send('msg', ["You are already logged in. Exit first."])
         return
     if is_username_taken(username):
-        send('msg', "The username is already taken.")
+        send('msg', ["The username is already taken."])
         return
 
     session['username'] = username
     connected_users.append({"username": username, "room": request.sid})
-    send('user', username)
-    send('msg', "You are now logged in as " + username + ".")
+    send('user', [username])
+    send('msg', ["You are now logged in as " + username + "."])
 
 
 def list_users():
     from main import send
-    send('msg', '**Users**')
-    send('msg', Sites.SEPARATOR_LIGHT)
-    send('msg', ', '.join([connected_user["username"] for connected_user in connected_users]))
-    send('msg', " ")
-    send('msg', '**Rooms**')
-    send('msg', Sites.SEPARATOR_LIGHT)
-    send('msg', ', '.join([str([user["username"] for user in shared_room["users"]]) for shared_room in shared_rooms]))
+    send('msg', [
+        '**Users**',
+        Sites.SEPARATOR_LIGHT,
+        ', '.join([connected_user["username"] for connected_user in connected_users]),
+        '',
+        '**Rooms**',
+        Sites.SEPARATOR_LIGHT,
+        ', '.join([str([user["username"] for user in shared_room["users"]]) for shared_room in shared_rooms])
+    ])
 
 
 def invite_user(user_from, user_to):
     from main import send
 
     if user_from is None or user_to is None:
+        send('msg', ['Please specify a user you want to invite.'], [CSS_classes.RED])
         return
 
     user = get_user_by_name(user_to)
-    send(
-        'invite_user',
-        data=user_from + " invited you. Accept? (y/n)",
-        classes=[CSS_classes.BLUE],
-        new_line=True,
-        show_pre_input=False,
-        room=user["room"],
-        user_from=user_from,
-        user_to=user_to
-    )
-    send('msg', 'Invitation sent.', [CSS_classes.BLUE])
+    if user is None:
+        send('msg', ['User offline. Please check the spelling and if the user is online.'], [CSS_classes.RED])
+    else:
+        send(
+            'invite_user',
+            data=[user_from + " invited you. Accept? (y/n)"],
+            classes=[CSS_classes.BLUE],
+            new_line=True,
+            show_pre_input=False,
+            room=user["room"],
+            user_from=user_from,
+            user_to=user_to
+        )
+        send('msg', ['Invitation sent.'], [CSS_classes.AQUA])
 
 
 def send_to_shared_room(sender_username, message):
@@ -113,5 +119,5 @@ def send_to_shared_room(sender_username, message):
         if sender in shared_room["users"]:
             for user in shared_room["users"]:
                 if user["username"] != sender_username:
-                    send('msg', sender_username + ": " + message, [CSS_classes.BLUE], room=user["room"])
-    send('msg', "You: " + message)
+                    send('msg', [sender_username + ": " + message], [CSS_classes.BLUE], room=user["room"])
+    send('msg', ["You: " + message])

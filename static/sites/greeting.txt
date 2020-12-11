@@ -1,0 +1,6 @@
+Welcome to [WEBSITE_TITLE]!
+Type in a command and press Enter to execute it.
+Have fun <3
+
+Here is a list of available commands:
+--------------------------------------------------------------------------------
