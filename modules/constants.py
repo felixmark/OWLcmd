@@ -4,11 +4,12 @@ class Constants(object):
     VERSION = "0.0.3"
 
     MACHINE_NAME = "owl"
-    PORT = 14159
+    PORT = 5000
     PING_INTERVAL = 5
     PING_TIMEOUT = 10
     HOST = '0.0.0.0'
     DEBUG = True
+    THREADED = True
 
     UNKNOWN_USER_NAME = "unknown"
 
