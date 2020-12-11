@@ -17,7 +17,7 @@ app.config['SECRET_KEY'] = 'somesecretiguess'
 app.logger.disabled = True
 log = logging.getLogger('werkzeug')
 log.disabled = True
-socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=Constants.PING_TIMEOUT, ping_interval=Constants.PING_INTERVAL)
+socketio = SocketIO(app, cors_allowed_origins="http://owlcmd.herokuapp.com", ping_timeout=Constants.PING_TIMEOUT, ping_interval=Constants.PING_INTERVAL)
 
 
 def send(msg_type, data=[], classes=[], new_line=True, show_pre_input=True, room=None, user_from="", user_to=""):
