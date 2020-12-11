@@ -21,12 +21,12 @@ def is_username_taken(username):
 
 
 def send_login_username():
-    from main import send
+    from app import send
     send('login', ["username: "], new_line=False, show_pre_input=False)
 
 
 def disconnect_user():
-    from main import send
+    from app import send
 
     if "username" not in session:
         send('msg', ['You can only log out if you log in first.'])
@@ -49,7 +49,7 @@ def disconnect_user():
 
 
 def login_with_username(something, is_username=False):
-    from main import send
+    from app import send
 
     if not is_username:
         if len(something) <= 1:
@@ -76,7 +76,7 @@ def login_with_username(something, is_username=False):
 
 
 def list_users():
-    from main import send
+    from app import send
     send('msg', [
         '**Users**',
         Sites.SEPARATOR_LIGHT,
@@ -89,7 +89,7 @@ def list_users():
 
 
 def invite_user(user_from, user_to):
-    from main import send
+    from app import send
 
     if user_from is None or user_to is None:
         send('msg', ['Please specify a user you want to invite.'], [CSS_classes.RED])
@@ -113,7 +113,7 @@ def invite_user(user_from, user_to):
 
 
 def send_to_shared_room(sender_username, message):
-    from main import send
+    from app import send
     sender = get_user_by_name(sender_username)
     for shared_room in shared_rooms:
         if sender in shared_room["users"]:
