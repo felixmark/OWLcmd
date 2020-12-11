@@ -137,4 +137,4 @@ def favicon():
 
 # =================================================== MAIN ===================================================
 if __name__ == '__main__':
-    socketio.run(app, cors_allowed_origins="*", debug=Constants.DEBUG, port=Constants.PORT)
+    socketio.run(app, debug=Constants.DEBUG, port=Constants.PORT)
