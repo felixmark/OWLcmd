@@ -7,7 +7,7 @@ class Constants(object):
     PORT = 80
     PING_INTERVAL = 5
     PING_TIMEOUT = 10
-    HOST = 'http://owlcmd.herokuapp.com'
+    HOST = '0.0.0.0'
     DEBUG = False
     THREADED = True
 

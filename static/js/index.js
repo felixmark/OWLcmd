@@ -34,7 +34,7 @@ $(document).ready(function(){
 
     // socket.io
     var socket = io.connect('ws://' + document.domain + ':' + location.port + '/', {
-        transports: ['polling', 'websocket']
+        transports: ['websocket']
     });
     socket.on('connect', function() { /* You are now connected. */ });
     socket.on('user', function(obj) { id_user.text(obj.data); });
