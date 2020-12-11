@@ -33,7 +33,7 @@ $(document).ready(function(){
 
 
     // socket.io
-    var socket = io.connect('ws://' + document.domain + ':' + location.port + '/');
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/');
     socket.on('connect', function() { /* You are now connected. */ });
     socket.on('user', function(obj) { id_user.text(obj.data); });
     socket.on('machine', function(obj) { id_machine.text(obj.data); });
