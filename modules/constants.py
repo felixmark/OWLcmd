@@ -4,7 +4,7 @@ class Constants(object):
     VERSION = "0.0.5"
 
     MACHINE_NAME = "owl"
-    PORT = 5000
+    PORT = 80
     PING_INTERVAL = 5
     PING_TIMEOUT = 10
     HOST = '0.0.0.0'
