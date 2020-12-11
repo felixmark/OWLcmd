@@ -1,7 +1,7 @@
 
 class Constants(object):
     WEBSITE_TITLE = "OWLcmd"
-    VERSION = "0.0.5"
+    VERSION = "0.0.6"
 
     MACHINE_NAME = "owl"
     PORT = 80
