@@ -41,7 +41,7 @@ img {
     white-space: break-spaces;
 }
 #input {
-    font-family: inherit;
+    font-family: 18px;
     font-size: inherit;
     padding: 0;
     margin: 0;
@@ -53,16 +53,17 @@ img {
     position: absolute;
     outline: none;
 }
+select:focus,
+textarea:focus,
+input:focus {
+    font-size: 18px;
+}
 
 #pre_cursor {
     color: #00000000;
 }
 .on {
     box-shadow: 0 100px 0 #ebdbb2 inset;
-}
-
-input[type="text"] {
-    font-size: inherit;
 }
 
 .bright { color: #d3f5d870; text-shadow: 0 0 5px #ffffff70; }
