@@ -61,10 +61,11 @@ img {
     box-shadow: 0 100px 0 #ebdbb2 inset;
 }
 
-.bright {
-    text-shadow: 0 0 5px #d3f5d870;
+input[type="text"] {
+    font-size: inherit;
 }
 
+.bright { color: #d3f5d870; text-shadow: 0 0 5px #ffffff70; }
 .background { color: #282828; }
 .default { color: #ebdbb2; }
 .blue, a { color: #83a598; }

@@ -51,7 +51,7 @@ def handle_new_connection():
     send('user', [Constants.UNKNOWN_USER_NAME])
     send('machine', [Constants.MACHINE_NAME])
     send('path', ['/'])
-    send('msg', Sites.get_site("asciiart.txt"), [CSS_classes.BLUE, CSS_classes.ASCII_ART])
+    send('msg', Sites.get_site("asciiart.txt"), [CSS_classes.BRIGHT])
     send('msg', Sites.get_site("greeting.txt"))
     send('msg', Sites.get_site("help.txt"))
 
@@ -103,7 +103,7 @@ def handle_message(obj):
                 time.sleep(sleep_time)
                 send('msg',[])
             except Exception:
-                send('msg',['Please specify the time you want to sleep in seconds.'])
+                send('msg', ['Please specify the time you want to sleep in seconds.'])
 
         # More complex functions:
         elif command.startswith("login"):
