@@ -32,6 +32,11 @@ img {
     margin: 0;
     padding: 40px 50px;
 }
+@media screen and (min-width: 800px) {
+    #console {
+        padding: 20px 30px;
+    }
+}
 #log {
     white-space: break-spaces;
 }

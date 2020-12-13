@@ -21,7 +21,10 @@ socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=Constants.PING_T
 
 
 def send(msg_type, data=[], classes=[], new_line=True, show_pre_input=True, room=None, user_from="", user_to=""):
-    print("SEND: " + str(data))
+    if len(data) <= 1:
+        print("SEND: " + str(data))
+    else:
+        print("SEND: Multiple lines...")
     if room is not None:
         emit(msg_type, {
             'data': data,
