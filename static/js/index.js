@@ -7,6 +7,9 @@ var bold = /\*\*([^\*]+)\*\*/gi;
 var italic = /\*([^\*]+)\*/gi;
 var url = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
 
+// Other
+cursor_blink = null;
+keep_alive = null;
 
 // When document loaded
 $(document).ready(function(){
@@ -31,10 +34,13 @@ $(document).ready(function(){
         id_input.focus();
     });
 
-
     // socket.io
     var socket = io.connect('http://' + document.domain + ':' + location.port + '/');
-    socket.on('connect', function() { /* You are now connected. */ });
+    socket.on('connect', function() {
+        keep_alive = setInterval(function(){
+            socket.emit("keep_alive", {});
+        }, 60000);
+    });
     socket.on('user', function(obj) { id_user.text(obj.data); });
     socket.on('machine', function(obj) { id_machine.text(obj.data); });
     socket.on('path', function(obj) { id_path.text(obj.data); });
