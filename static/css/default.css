@@ -53,9 +53,13 @@ img {
     position: absolute;
     outline: none;
 }
+input[type='text'], textarea {
+    font-size: 18px;
+}
 select:focus,
 textarea:focus,
-input:focus {
+input:focus,
+#input:focus {
     font-size: 18px;
 }
 
