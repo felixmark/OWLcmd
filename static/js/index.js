@@ -41,6 +41,7 @@ $(document).ready(function(){
             socket.emit("keep_alive", {});
         }, 60000);
     });
+    socket.on('keep_alive', function(obj) { /* Ignore */ });
     socket.on('user', function(obj) { id_user.text(obj.data); });
     socket.on('machine', function(obj) { id_machine.text(obj.data); });
     socket.on('path', function(obj) { id_path.text(obj.data); });
@@ -50,8 +51,14 @@ $(document).ready(function(){
         show_prompt(obj.show_pre_input);
         window.scrollTo(0,document.body.scrollHeight);
     });
-    socket.on('login', function(obj) {
+    socket.on('login_username', function(obj) {
         current_app = 'login_username';
+        append_to_log(obj);
+        show_prompt(obj.show_pre_input);
+        window.scrollTo(0,document.body.scrollHeight);
+    });
+    socket.on('login_password', function(obj) {
+        current_app = 'login_password';
         append_to_log(obj);
         show_prompt(obj.show_pre_input);
         window.scrollTo(0,document.body.scrollHeight);

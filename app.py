@@ -1,14 +1,17 @@
 import logging
 import time
+import subprocess
 
 from flask import Flask, render_template, session, send_from_directory
 from flask_socketio import SocketIO, emit
+from sys import platform as _platform
 
-from modules.constants import Constants
-from modules.css_classes import CSS_classes
-from modules.sites import Sites
-from modules.user_handler import disconnect_user, login_with_username, shared_rooms, send_login_username, list_users, \
-    invite_user, send_to_shared_room, get_user_by_name
+from modules.constants import *
+from modules.cssclasses import *
+from modules.message import *
+from modules.sleep import *
+from modules.user_handler import *
+from modules.execute import *
 
 
 # =================================================== FLASK SETUP ===================================================
@@ -20,66 +23,54 @@ log.disabled = True
 socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=Constants.PING_TIMEOUT, ping_interval=Constants.PING_INTERVAL)
 
 
-def send(msg_type, data=[], classes=[], new_line=True, show_pre_input=True, room=None, user_from="", user_to=""):
-    if len(data) <= 1:
-        print("SEND: " + str(data))
-    else:
-        print("SEND: Multiple lines...")
-    if room is not None:
-        emit(msg_type, {
-            'data': data,
-            'classes': classes,
-            'new_line': new_line,
-            'user_from': user_from,
-            'user_to': user_to,
-            'show_pre_input': show_pre_input
-        }, room=room)
-    else:
-        emit(msg_type, {
-            'data': data,
-            'classes': classes,
-            'new_line': new_line,
-            'user_from': user_from,
-            'user_to': user_to,
-            'show_pre_input': show_pre_input
-        })
-
-
 @socketio.on('connect')
 def handle_new_connection():
     print('New connection.')
     send('user', [Constants.UNKNOWN_USER_NAME])
     send('machine', [Constants.MACHINE_NAME])
     send('path', ['/'])
-    send('msg', Sites.get_site("asciiart.txt"), [CSS_classes.BRIGHT])
+    send('msg', Sites.get_site("asciiart.txt"), [CSSClasses.BRIGHT])
     send('msg', Sites.get_site("greeting.txt"))
     send('msg', Sites.get_site("help.txt"))
 
 
 @socketio.on('disconnect')
 def handle_delete_connection():
-    disconnect_user()
+    logout()
+
+
+@socketio.on('keep_alive')
+def handle_keep_alive(obj):
+    send('keep_alive', [])
 
 
 @socketio.on('login_username')
 def handle_message(obj):
-    login_with_username(obj['data'], True)
+    set_username(obj['data'])
+
+
+@socketio.on('login_password')
+def handle_message(obj):
+    login(session['username'], obj['data'])
 
 
 @socketio.on('accept_invitation')
 def handle_message(obj):
     command = obj["data"]
-    user_from = get_user_by_name(obj["user_from"])
-    user_to = get_user_by_name(obj["user_to"])
+    user_from = connected_users[obj["user_from"]]
+    user_to = connected_users[obj["user_to"]]
     if command != "y" and command != "Y":
-        send('msg', ['Invitation rejected.'], [CSS_classes.BLUE])
-        send('msg', ['Your invitation got rejected.'], [CSS_classes.BLUE], room=user_from["room"])
+        send('msg', ['Invitation rejected.'], [CSSClasses.BLUE])
+        send('msg', ['Your invitation got rejected.'], [CSSClasses.BLUE], room=user_from["room"])
     else:
-        send('msg', ['Invitation accepted.'], [CSS_classes.BLUE])
-        send('msg', ['Your invitation was accepted.'], [CSS_classes.BLUE], room=user_from["room"])
+        send('msg', ['Invitation accepted.'], [CSSClasses.BLUE])
+        send('msg', ['Your invitation was accepted.'], [CSSClasses.BLUE], room=user_from["room"])
         send('user', [user_from["username"] + ">" + user_to["username"]], room=user_from["room"])
         send('user', [user_to["username"] + ">" + user_from["username"]], room=user_to["room"])
-        shared_rooms.append({"users": [user_from, user_to]})
+        chat_rooms.append({"users": [user_from, user_to]})
+
+
+user_folder = 'user_folders'
 
 
 @socketio.on('msg')
@@ -89,38 +80,44 @@ def handle_message(obj):
         parts = str(command).split(" ")
         print("Parts: " + str(parts))
 
+        # NOT LOGGED IN COMMANDS
         if command == "":
             pass
         elif command == "help":
             send('msg', Sites.get_site("help.txt"))
         elif command == "info":
             send('msg', Sites.get_site("info.txt"))
-        elif command == "list" or command == "ls":
-            list_users()
-        elif len(parts) > 0 and parts[0] == "sleep":
-            try:
-                sleep_time = float(parts[1])
-                time.sleep(sleep_time)
-                send('msg',[])
-            except Exception:
-                send('msg', ['Please specify the time you want to sleep in seconds.'])
-
-        # More complex functions:
         elif command.startswith("login"):
             login_with_username(parts)
+
+        # LOGGED IN COMMANDS
+        elif command == "ls":
+            if 'logged_in' in session and session['logged_in']:
+                if 'win' in _platform:
+                    execute('cd' + user_folder + '/' + session['username'] + ' & ' + 'dir')
+                else:
+                    execute('ls')
+            else:
+                send('msg', ['You have to be logged in to perform this action.'], classes=[CSSClasses.RED])
+        elif command == "users":
+            list_users()
+        elif command == "exit":
+            logout()
+        elif command.startswith('sleep'):
+            cmd_sleep(parts)
+
+        # More complex functions
         elif command.startswith("invite"):
             if "username" in session and len(parts) > 1:
                 invite_user(session["username"], parts[1])
             elif "username" not in session:
-                send('msg', ['Please log in to invite a user.'], [CSS_classes.RED])
+                send('msg', ['Please log in to invite a user.'], [CSSClasses.RED])
             elif len(parts) <= 1:
-                send('msg', ['Please specify a user you want to invite.'], [CSS_classes.RED])
-        elif command == "exit":
-            disconnect_user()
+                send('msg', ['Please specify a user you want to invite.'], [CSSClasses.RED])
         elif command.startswith("msg"):
             if len(parts) > 1 and "username" in session:
                 message = str(command).replace("msg ", "")
-                send_to_shared_room(session["username"], message)
+                send_to_chatroom(session["username"], message)
         else:
             send('msg', ['Command *' + command + '* not found. Please execute *help* for a list of available commands.'])
 
@@ -128,9 +125,7 @@ def handle_message(obj):
 # =================================================== ROUTES ===================================================
 @app.route('/')
 def index():
-    return render_template('index.html',
-        website_title=Constants.WEBSITE_TITLE
-    )
+    return render_template('index.html', website_title=Constants.WEBSITE_TITLE)
 
 
 @app.route('/favicon.ico')
