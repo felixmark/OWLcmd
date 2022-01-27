@@ -5,4 +5,4 @@ Uses Flask, SocketIO, JQuery.
 A live example is available at:  
 [http://owlcmd.herokuapp.com/](http://owlcmd.herokuapp.com/)  
 
-The axample uses gunicorn as its WSGI HTTP server.
+The example uses gunicorn as its WSGI HTTP server.
